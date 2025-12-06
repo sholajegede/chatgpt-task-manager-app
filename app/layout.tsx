@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+// @ts-ignore TS2307: Cannot find module or type declarations for side-effect import of './globals.css'.
 import "./globals.css";
 import { baseURL } from "@/baseUrl";
 import { ConvexClientProvider } from "./providers";
