@@ -8,7 +8,7 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import { Select, SelectValue, SelectContent, SelectItem } from "../ui/select";
+import { Select, SelectValue, SelectContent, SelectItem, SelectTrigger } from "../ui/select";
 
 type TaskStatus = "todo" | "in-progress" | "done";
 
@@ -192,11 +192,10 @@ export default function TaskForm({ initialData, firstName: propFirstName, lastNa
             <Label htmlFor="status" className="mb-1">
               Status
             </Label>
-            <Select
-              value={status}
-              onValueChange={(value) => setStatus(value as TaskStatus)}
-            >
-              <SelectValue placeholder="Select status" />
+            <Select value={status} onValueChange={(value) => setStatus(value as TaskStatus)}>
+              <SelectTrigger id="status">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todo">To Do</SelectItem>
                 <SelectItem value="in-progress">In Progress</SelectItem>

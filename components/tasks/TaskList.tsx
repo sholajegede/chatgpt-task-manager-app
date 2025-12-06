@@ -147,7 +147,12 @@ function TaskList() {
         <h1 className="text-2xl font-bold">My Tasks - {firstName} {lastName}</h1>
         <div className="flex gap-2">
           <Button
-            onClick={() => setTaskToEdit({})}
+            onClick={() => setTaskToEdit({
+              title: "",
+              description: "",
+              status: "todo",
+              dueDate: ""
+            })}
             variant={"default"}
           >
             Add Task
