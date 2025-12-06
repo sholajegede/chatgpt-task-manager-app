@@ -154,7 +154,7 @@ export default function TaskForm({ initialData, firstName: propFirstName, lastNa
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
+  <div className="max-w-2xl mx-auto p-4 relative z-50">
       <h1 className="text-2xl font-bold mb-6">
         {initialData ? 'Edit Task' : 'Create New Task'}{firstName && lastName ? ` - ${firstName} ${lastName}` : ''}
       </h1>
@@ -193,7 +193,7 @@ export default function TaskForm({ initialData, firstName: propFirstName, lastNa
               Status
             </Label>
             <Select value={status} onValueChange={(value) => setStatus(value as TaskStatus)}>
-              <SelectTrigger id="status">
+              <SelectTrigger>
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
