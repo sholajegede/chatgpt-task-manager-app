@@ -11,6 +11,7 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 
+
 function TaskList() {
   const [statusFilter, setStatusFilter] = useState<"all" | "todo" | "in-progress" | "done">("all");
   const sendMessage = useSendMessage();
@@ -25,6 +26,7 @@ function TaskList() {
   }>();
   const [taskToDelete, setTaskToDelete] = useState<{ id: Id<"tasks">; title: string } | null>(null);
   const [taskToEdit, setTaskToEdit] = useState<any | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   const [widgetState, setWidgetState] = useWidgetState<{ firstName?: string; lastName?: string }>(() => ({
     firstName: widgetProps?.firstName || widgetProps?.structuredContent?.firstName || "",
@@ -48,6 +50,7 @@ function TaskList() {
 
   function handleEdit(task: any) {
     setTaskToEdit(task);
+    setIsCreating(false);
   }
 
   if (!firstName || !lastName) {
@@ -112,6 +115,25 @@ function TaskList() {
     );
   }
 
+  if (isCreating) {
+    return (
+      <div className="max-w-4xl mx-auto p-4">
+        <div className="mb-4">
+          <Button
+            onClick={() => setIsCreating(false)}
+            variant={"link"}
+          >
+            ← Back to Tasks
+          </Button>
+        </div>
+        <TaskForm
+          firstName={firstName}
+          lastName={lastName}
+          onSuccess={() => setIsCreating(false)}
+        />
+      </div>
+    );
+  }
   if (taskToEdit) {
     return (
       <div className="max-w-4xl mx-auto p-4">
@@ -147,7 +169,10 @@ function TaskList() {
         <h1 className="text-2xl font-bold">My Tasks - {firstName} {lastName}</h1>
         <div className="flex gap-2">
           <Button
-            onClick={() => setTaskToEdit(null)}
+            onClick={() => {
+              setIsCreating(true);
+              setTaskToEdit(null);
+            }}
             variant={"default"}
           >
             Add Task
