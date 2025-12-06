@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-const TaskForm = dynamic(() => import("@/app/components/tasks/TaskForm"), {
+const TaskForm = dynamic(() => import("@/components/tasks/TaskForm"), {
   ssr: false,
 });
 

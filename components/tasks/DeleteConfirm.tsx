@@ -1,20 +1,38 @@
 "use client";
 
+import { useState } from "react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import { AlertTriangle, X } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface DeleteConfirmProps {
   taskTitle: string;
-  onConfirm: () => void;
+  taskId: Id<"tasks">;
+  onDeleted: () => void;
   onCancel: () => void;
-  isDeleting?: boolean;
 }
 
 export default function DeleteConfirm({ 
   taskTitle, 
-  onConfirm, 
-  onCancel,
-  isDeleting = false 
+  taskId,
+  onDeleted,
+  onCancel
 }: DeleteConfirmProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const deleteTask = useMutation(api.tasks.remove);
+  async function handleDelete() {
+    console.log("Delete button clicked", taskId);
+    setIsDeleting(true);
+    try {
+      await deleteTask({ taskId });
+      onDeleted();
+    } catch (err) {
+      // Optionally handle error
+    }
+    setIsDeleting(false);
+  }
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
@@ -38,20 +56,20 @@ export default function DeleteConfirm({
               This action cannot be undone.
             </p>
             <div className="flex gap-3 justify-end">
-              <button
+              <Button
                 onClick={onCancel}
                 disabled={isDeleting}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                variant={"outline"}
               >
                 Cancel
-              </button>
-              <button
-                onClick={onConfirm}
+              </Button>
+              <Button
+                onClick={handleDelete}
                 disabled={isDeleting}
-                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                variant={"destructive"}
               >
                 {isDeleting ? 'Deleting...' : 'Delete'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -59,4 +77,3 @@ export default function DeleteConfirm({
     </div>
   );
 }
-

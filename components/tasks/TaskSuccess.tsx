@@ -26,29 +26,43 @@ export default function TaskSuccess({
       onViewTasks();
       return;
     }
-
+    // Always call the MCP tool directly to refresh the widget
     if (callTool) {
       try {
         await callTool("list_tasks", {
           firstName,
           lastName,
         });
+        // Optionally reload the page to force widget refresh
+        window.location.reload();
       } catch (error) {
         console.error("Error calling list_tasks:", error);
       }
     } else if (sendMessage) {
       await sendMessage(`Please show me all tasks for ${firstName} ${lastName}`);
+      window.location.reload();
     }
   };
 
-  const handleCreateAnother = () => {
+  const handleCreateAnother = async () => {
     if (onCreateAnother) {
       onCreateAnother();
       return;
     }
-
-    if (sendMessage) {
-      sendMessage(`Please call create_task with firstName="${firstName}" and lastName="${lastName}" to show the task creation form.`);
+    // Always call the MCP tool directly to show the form
+    if (callTool) {
+      try {
+        await callTool("create_task", {
+          firstName,
+          lastName,
+        });
+        window.location.reload();
+      } catch (error) {
+        console.error("Error calling create_task:", error);
+      }
+    } else if (sendMessage) {
+      await sendMessage(`Please call create_task with firstName=\"${firstName}\" and lastName=\"${lastName}\" to show the task creation form.`);
+      window.location.reload();
     }
   };
 

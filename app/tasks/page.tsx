@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-const TaskList = dynamic(() => import("@/app/components/tasks/TaskList"), {
+const TaskList = dynamic(() => import("@/components/tasks/TaskList"), {
   ssr: false,
 });
 

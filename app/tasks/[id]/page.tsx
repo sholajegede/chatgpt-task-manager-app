@@ -6,7 +6,7 @@ import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import dynamic from 'next/dynamic';
 
-const TaskForm = dynamic(() => import('@/app/components/tasks/TaskForm'), {
+const TaskForm = dynamic(() => import('@/components/tasks/TaskForm'), {
   ssr: false,
   loading: () => <div className="p-4 text-center text-slate-500">Loading task form...</div>
 });

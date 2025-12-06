@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { useCallTool, useSendMessage, useWidgetState } from "@/app/hooks";
-import TaskForm from "@/app/components/tasks/TaskForm";
+import TaskForm from "@/components/tasks/TaskForm";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function UserInfoPage() {
   const callTool = useCallTool();
@@ -17,7 +20,6 @@ export default function UserInfoPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showTaskForm, setShowTaskForm] = useState(false);
 
-  // Check if we should show task form (from widget state or local state)
   const shouldShowTaskForm = showTaskForm || widgetState?.showTaskForm;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,30 +32,25 @@ export default function UserInfoPage() {
 
     setIsSubmitting(true);
     try {
-      // Store user info in widget state
       await setWidgetState({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         showTaskForm: true,
       });
 
-      // Try to trigger ChatGPT to call the tool by sending a message
       if (sendMessage) {
         await sendMessage(`My name is ${firstName.trim()} ${lastName.trim()}. Please call create_task with firstName="${firstName.trim()}" and lastName="${lastName.trim()}".`);
       }
 
-      // Also show the task form directly in this widget
       setShowTaskForm(true);
     } catch (error) {
       console.error('Error:', error);
-      // Even if there's an error, show the form
       setShowTaskForm(true);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // If we should show task form, render it with the user info
   if (shouldShowTaskForm) {
     const userFirstName = firstName.trim() || widgetState?.firstName || "";
     const userLastName = lastName.trim() || widgetState?.lastName || "";
@@ -73,29 +70,27 @@ export default function UserInfoPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+            <Label htmlFor="firstName" className="mb-1">
               First Name *
-            </label>
-            <input
+            </Label>
+            <Input
               type="text"
               id="firstName"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Your first name"
               required
             />
           </div>
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+            <Label htmlFor="lastName" className="mb-1">
               Last Name *
-            </label>
-            <input
+            </Label>
+            <Input
               type="text"
               id="lastName"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Your last name"
               required
             />
@@ -103,16 +98,15 @@ export default function UserInfoPage() {
         </div>
 
         <div className="flex justify-end space-x-3 pt-4">
-          <button
+          <Button
             type="submit"
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            variant={"default"}
             disabled={isSubmitting || !firstName.trim() || !lastName.trim()}
           >
             {isSubmitting ? 'Continuing...' : 'Continue to Task Form'}
-          </button>
+          </Button>
         </div>
       </form>
     </div>
   );
 }
-

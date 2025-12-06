@@ -419,75 +419,102 @@ const handler = createMcpHandler(async (server) => {
       description:
         "Display all tasks for a user. The widget will show a form to enter your first and last name, then display your tasks.",
       inputSchema: {
-        firstName: z
-          .string()
-          .optional()
-          .describe("The user's first name (optional - can be filled in the widget)"),
-        lastName: z
-          .string()
-          .optional()
-          .describe("The user's last name (optional - can be filled in the widget)"),
+        firstName: z.string().min(1, "First name required").optional().describe("The user's first name (optional - can be filled in the widget)"),
+        lastName: z.string().min(1, "Last name required").optional().describe("The user's last name (optional - can be filled in the widget)"),
       },
       _meta: widgetMeta(taskListWidget),
     },
     async (args) => {
-      // If we have the required info, fetch tasks
-      if (args.firstName && args.lastName) {
-        try {
-          const user = await getOrCreateUser(args.firstName, args.lastName);
-          const userId = (user as { _id: string })._id;
-          const tasks = await callConvexQuery(api.tasks.getByUser, { userId });
-
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Found ${Array.isArray(tasks) ? tasks.length : 0} task(s) for ${args.firstName} ${args.lastName}`,
-              },
-            ],
-            structuredContent: {
-              tasks: Array.isArray(tasks) ? tasks : [],
-              count: Array.isArray(tasks) ? tasks.length : 0,
-              firstName: args.firstName,
-              lastName: args.lastName,
+      // Defensive validation
+      const firstName = typeof args.firstName === "string" ? args.firstName.trim() : "";
+      const lastName = typeof args.lastName === "string" ? args.lastName.trim() : "";
+      if (!firstName || !lastName) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: "Please enter your first and last name to view your tasks.",
             },
-            _meta: widgetMeta(taskListWidget),
-          };
-        } catch (error) {
+          ],
+          structuredContent: {
+            firstName,
+            lastName,
+            tasks: [],
+            count: 0,
+          },
+          _meta: widgetMeta(taskListWidget),
+        };
+      }
+      try {
+        const user = await getOrCreateUser(firstName, lastName);
+        if (!user || !(user as { _id?: string })._id) {
           return {
             content: [
               {
                 type: "text",
-                text: `Error loading tasks: ${error instanceof Error ? error.message : String(error)}`,
+                text: `No user found for ${firstName} ${lastName}. Please check your name or create a new user.`,
               },
             ],
             structuredContent: {
-              firstName: args.firstName || "",
-              lastName: args.lastName || "",
+              firstName,
+              lastName,
               tasks: [],
               count: 0,
             },
             _meta: widgetMeta(taskListWidget),
           };
         }
-      }
-
-      // Otherwise, just show the widget for user to enter their info
-      return {
-        content: [
-          {
-            type: "text",
-            text: "Enter your first and last name to view your tasks.",
+        const userId = (user as { _id: string })._id;
+        const tasks = await callConvexQuery(api.tasks.getByUser, { userId });
+        if (!Array.isArray(tasks) || tasks.length === 0) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `No tasks found for ${firstName} ${lastName}. You can create a new task!`,
+              },
+            ],
+            structuredContent: {
+              firstName,
+              lastName,
+              tasks: [],
+              count: 0,
+            },
+            _meta: widgetMeta(taskListWidget),
+          };
+        }
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Found ${tasks.length} task(s) for ${firstName} ${lastName}`,
+            },
+          ],
+          structuredContent: {
+            firstName,
+            lastName,
+            tasks,
+            count: tasks.length,
           },
-        ],
-        structuredContent: {
-          firstName: args.firstName || "",
-          lastName: args.lastName || "",
-          tasks: [],
-          count: 0,
-        },
-        _meta: widgetMeta(taskListWidget),
-      };
+          _meta: widgetMeta(taskListWidget),
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error loading tasks: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
+          structuredContent: {
+            firstName,
+            lastName,
+            tasks: [],
+            count: 0,
+          },
+          _meta: widgetMeta(taskListWidget),
+        };
+      }
     }
   );
 
